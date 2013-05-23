@@ -1,22 +1,60 @@
-function [output,raw] = lex(filepath)
+function output = lex(filepath,varargin)
 %
-%   [output,raw] = mlintlib.lex(filepath)
+%   [output,raw] = mlintlib.lex(filepath,varargin)
 %
 %   OUTPUTS
-%   ==============================================
+%   =======================================================================
 %   output : (struct)
-%            data_line_number: [1x12443 double]
-%     data_column_start_index: [1x12443 double]
-%                 data_length: [1x12443 double]
-%                   data_type: {1x12443 cell}
+%       .data : (struct)
+%         ..line_numbers: [1x12443 double]
+%         ..column_start_indices: [1x12443 double]
+%         ..lengths: [1x12443 double]
+%         ..types: {1x12443 cell}
+%
+%           IF 'resolve_indices' = true
+%         ..absolute_start_indices: [1x12443 double]
+%
+%           IF 'get_unique_groups' = true
+%         ..unique_types: {1x51 cell}
+%         ..unique_indices_ca: {1x51 cell}
+%
+%       .raw: raw string output from the mex call
+%
+%           IF 'resolve_indices' = true
+%       .newline_indices: [1 x n], Indices of newlines in the file.
+%   
+%   OPTIONAL INPUTS
+%   =======================================================================
+%   resolve_indices   : (default false)
+%   get_unique_groups : (default false)
+%   file_string       : (default '') for methods that require access to the
+%           original string, this allows us to use the passed in string
+%           instead of rereading the file from disk.
 
+in.get_all           = false;
+in.resolve_indices   = false;
+in.get_unique_groups = false;
+in.file_string       = '';
+in = processVarargin(in,varargin);
+
+%
+if in.get_all
+   in.resolve_indices   = true;
+   in.get_unique_groups = true; 
+end
+
+
+%NOTE: The -m3 specifies not to return mlint messages
 raw    = mlintmex(filepath,'-lex','-m3');
 
+%Sample output of raw
+%--------------------------------------------------------------------------
 % 1868/13(2): IF:  IF
 % 1868/16(7): <NAME>:  isempty
 % 1868/23(1): '(':  '('
 % 1868/24(14): <NAME>:  HDSManagedData
 % 1868/38(1): '(':  '('
+
 
 
 c = textscan(raw,'%f / %f ( %f ): %s %*[^\n]','MultipleDelimsAsOne',true);
@@ -25,50 +63,68 @@ c = textscan(raw,'%f / %f ( %f ): %s %*[^\n]','MultipleDelimsAsOne',true);
 %[^''] - matches a character if it isn't a quote -> matches the colon
 c{4} = regexp(c{4},'[^''][^:'']*','match','once');
 
-output = struct('data_line_number',c{1}','data_column_start_index',...
-            c{2}','data_length',c{3}','data_type',{c{4}'});
+data = struct(...
+    'line_numbers',         c{1}',...
+    'column_start_indices', c{2}',...
+    'lengths',              c{3}',...
+    'types',                {c{4}'});
 
-%OLD CODE
-%=========================================================
-% % % line_string    = '(?<line_start>\d+)';
-% % % col_start      = '(?<col_start>\d+)';
-% % % content_length = '(?<content_length>\d+)';
-% % % content_type   = '''?(?<content_type>[^''][^:'']+)''?';
-% % % %content_data   = '(?<content_data>.*)';
-% % % 
-% % % 
-% % % 
-% % % 
-% % % pattern = ['^[ ]*' line_string '/[ ]*' col_start '\(' content_length '\): *' content_type]; % ':  ' content_data];
-% % % 
-% % % 
-% % % 
-% % % temp = regexp(raw,pattern,'lineanchors','names','dotexceptnewline');
-% % % 
-% % % line_starts  = str2double({temp.line_start});
-% % % col_starts   = str2double({temp.col_start});
-% % % data_length  = str2double({temp.content_length});
-% % % 
-% % % % line_starts  = str2int({temp.line_start});
-% % % % col_starts   = str2int({temp.col_start});
-% % % % data_length  = str2int({temp.content_length});
-% % % 
-% % % output2 = struct('data_line_number',line_starts,'data_column_start_index',...
-% % %             col_starts,'data_length',data_length,'data_type',{{temp.content_type}});
-% % % % expected_data_lengths = str2double({temp.content_length});
-% % % % observed_data_lengths = arrayfun(@(x) length(x.content_data),temp);
-% % % 
-% % % 
-% % % %?? - handle grabbing strings a different way???
-% % % %?? - split into lines, then grab
-% % % 
-% % % %output = regexp(raw,'^[ ]*(?<line_start>\d+)/[ ]*(?<col_start>\d+)\(\(<content_length>\d+)\)','lineanchors');
+
+%Index resolving
+%==========================================================================
+%To resolve indices we need to know where the new lines are, then from
+%there, we add all line lengths to get final indices.
+%
+%PROBLEM
+%------------------------------------------------
+%
+%       '...' removes the EOL character
+%
+%We have something like:
+% a = { 1 2 3 ...
+%     4 5 6 7 8 ...
+%     9 10 11}
+%
+%   The EOL only shows up for the last line, so we have no idea
+%   how long the first two lines are. This may not be critical for these 
+%   entries but it might screw up subsequent lines
+
+if in.resolve_indices
+    if isempty(in.file_string)
+        str = fileread(filepath);
+    else
+        str = in.file_string;
+    end
+
+    I_newline = strfind(str,sprintf('\n'));
+
+    index_of_previous_line_end = [0 I_newline];
+
+    absolute_start_indices = index_of_previous_line_end(data.line_numbers) ...
+                            + data.column_start_indices;
+
+    %Property Assignments
+    %---------------------------------------------------------
+    output.newline_indices = I_newline;                
+    data.absolute_start_indices = absolute_start_indices;
+end
+                    
+
+%Unique Group Handling
+%==========================================================================
+if in.get_unique_groups
+    %TODO: Consider moving unique2 into local function or as part of
+    %library
+    [u_types,u_indices_ca] = unique2(data.types);
+
+    %Property Assignments
+    %-------------------------------------------------------------
+    data.unique_types      = u_types;
+    data.unique_indices_ca = u_indices_ca;
 
 end
+output.data = data;
+output.raw  = raw;
 
-% function int_out = fastPositiveStringToInteger(s1)
-% 
-%     lt = length(s1);
-%     int_out = (double(s1)-48)*(((10*ones(1,lt)).^(lt-1:-1:0))');
-% 
-% end
+
+end

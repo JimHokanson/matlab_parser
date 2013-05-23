@@ -1,0 +1,5 @@
+Questions
+1) How should we detect updated functions/files?
+See: http://www.mathworks.com/matlabcentral/newsreader/view_thread/243160
+2) For enhanced parsing, do we want to keep a cached version of all parsed objects, particularly
+classes, or reparse each time?

@@ -1,0 +1,107 @@
+function output = lex(filepath,varargin)
+%
+%   [output,raw] = mlintlib.lex(filepath,varargin)
+%
+%   OUTPUTS
+%   =======================================================================
+%   output : (struct)
+%            data_line_number: [1x12443 double]
+%     data_column_start_index: [1x12443 double]
+%                 data_length: [1x12443 double]
+%                   data_type: {1x12443 cell}
+%                         raw: raw string output from the mex call
+%   
+%   OPTIONAL INPUTS
+%   =======================================================================
+%   resolve_indices   :
+%   get_unique_groups : 
+
+in.resolve_indices   = false;
+in.get_unique_groups = false;
+in.file_string       = '';
+in = processVarargin(in,varargin);
+
+raw    = mlintmex(filepath,'-lex','-m3');
+
+%Sample output of raw
+%--------------------------------------------------------------------------
+% 1868/13(2): IF:  IF
+% 1868/16(7): <NAME>:  isempty
+% 1868/23(1): '(':  '('
+% 1868/24(14): <NAME>:  HDSManagedData
+% 1868/38(1): '(':  '('
+
+
+
+c = textscan(raw,'%f / %f ( %f ): %s %*[^\n]','MultipleDelimsAsOne',true);
+
+%Tricky one: '':''
+%[^''] - matches a character if it isn't a quote -> matches the colon
+c{4} = regexp(c{4},'[^''][^:'']*','match','once');
+
+output = struct(...
+    'data_line_number',c{1}',...
+    'data_column_start_index',c{2}',...
+    'data_length',c{3}',...
+    'data_type',{c{4}'},...
+    'raw',raw);
+
+%Unique groups
+%--------------------------------------------------------------------------
+
+
+%Index resolving
+%--------------------------------------------------------------------------
+%To resolve indices we need to know where the new lines are, then from
+%their, we add all line lengths to get final indices
+%
+%   Two approaches:
+%   1) unique groups requested - do that, then this
+
+%... - removes the EOL character
+
+%PROBLEM
+%------------------------------------------------
+%We have something like:
+% a = { 1 2 3 ...
+%     4 5 6 7 8 ...
+%     9 10 11}
+%
+%   The EOL only shows up for the last line, so we have no idea
+%   how long the first two lines are ...
+
+if isempty(in.file_string)
+    str = filread(filepath);e
+else
+    str = in.file_string;
+end
+
+tic
+I_newline = strfind(str,sprintf('\n'));
+toc
+
+last_line_end_indices = [0 I_newline];
+
+start_indices = last_line_end_indices(output.data_line_number) ...
+                        + output.data_column_start_index;
+
+if in.get_unique_groups
+    
+else
+   eol_mask = strcmp(output.data_type,'<EOL>');
+end
+
+%?? - combine next two lines
+line_lengths = output.data_column_start_index(eol_mask);
+eol_indices  = cumsum(line_lengths);
+str = fileread(filepath);
+
+I_n = strfind(str,sprintf('\n'));
+
+%?? - where's the start of each line for each element
+%?? - where's the end of the line for each element?
+
+keyboard
+
+
+end

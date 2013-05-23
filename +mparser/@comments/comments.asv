@@ -19,21 +19,13 @@ classdef comments < handle
     end
     
     methods
-        function obj = comments(file_path,file_string)
-           %
-           %    obj = mparser.comments(file_path,*file_string)
+        function obj = comments(file_path,file_str)
            %
            %    INPUTS
            %    ===========================================================
            %    file_string : Contents of the file as a string
            
-           lex_output = 
-           
-           %TODO:
-           %??? Build these into the library???
-           %1) Resolve unique instances
-           %2) Lines to index 
-           
+           lex_o
         end
     end
     
