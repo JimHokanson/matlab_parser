@@ -6,8 +6,13 @@ out from the lex parser.
 
 See: mlintlib.lex
 
+??? - are these seen in other functions?
+
+
 '%' - line comment, these also seem to appear for continuation comments 
       i.e. => something ... this is a comment
+    - They also appear for lines that make up group comments, except for
+    the start and end lines, which are indicated as group comment lines
 '&' 
 '&&'
 '('
@@ -22,7 +27,8 @@ See: mlintlib.lex
 '<'
 '<='
 '<DOUBLE>'
-'<EOL>'
+'<EOL>' - end of line character. NOTE, for lines with '...'
+        the EOL character is not present. This points to the \n character.
 '<INT>'
 '<NAME>'
 '<STRING>'
@@ -59,5 +65,7 @@ See: mlintlib.lex
 '~'
 '~='
 
+NOT PRESENT   =============================================================
+...
 
 %}
