@@ -1,4 +1,4 @@
-classdef edit < handle_light
+classdef editc < handle_light
     %
     %   Class:
     %   mlintlib.edit
@@ -11,7 +11,7 @@ classdef edit < handle_light
     end
     
     methods
-        function obj = edit(file_path)
+        function obj = editc(file_path)
             
            obj.raw_mex_output = mlintmex(file_path,'-edit','-m3');
            
