@@ -7,9 +7,6 @@ classdef lex < handle_light
     %
     %   ISSUES:
     %   ==================================================================
-    %   1) We are currently not parsing out the strings that are returned
-    %      with the mex function, like the names of <NAME> or the contents
-    %      of comment strings
     
     %Properties Per Entry
     %----------------------------------------------------------------------
@@ -95,6 +92,11 @@ classdef lex < handle_light
             obj.line_numbers         = c{1}';
             obj.column_start_indices = c{2}';
             obj.lengths              = c{3}';
+            
+            %NOTE: At this point, some of these are invalid as they
+            %get truncated when they are too long. We can use the length
+            %observed versus their specified lengths to determine when this
+            %happens and fix them. See .fixStrings
             obj.strings              = c{5}';
             
             %Tricky one: '':''
@@ -107,21 +109,6 @@ classdef lex < handle_light
             obj.getAbsoluteStartIndices();
             obj.getUniqueGroups();
             obj.fixStrings();
-        end
-        
-        function strings = getStringsForIndices(obj,indices)
-           %getStringsForIndices
-           %    
-           %    strings = getStringsForIndices(obj,indices)
-           
-%            n_strings     = length(indices);
-%            strings       = cell(1,n_strings);
-%            start_indices = obj.absolute_start_indices(indices);
-%            end_indices   = start_indices + obj.lengths(indices) - 1;
-%            str           = obj.file_string;
-%            for iString = 1:n_strings
-%               strings{iString} = str(start_indices(iString):end_indices(iString)); 
-%            end
         end
     end
     

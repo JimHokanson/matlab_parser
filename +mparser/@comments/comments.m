@@ -1,4 +1,4 @@
-classdef comments < handle
+classdef comments < handle_light
     %   
     %   Class:
     %   mparser.comments
