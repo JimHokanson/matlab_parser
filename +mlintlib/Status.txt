@@ -1,0 +1,63 @@
+Status:
+
+See mlintlib/private/testing.m for more detailed info on observed output
+
+LEGEND
+-----------------------------------
+- not yet completed
++ completed
+- ??? don't know what this is
+
+Completed List:
+------------------------------------
+mlintlib.calls
+mlintlib.editc
+mlintlib.lex
+
+
+Questions
+------------------------------------
+Are non .m files supported??
+
+
+LIST OF OPTIONS
+------------------------------------
+- all - MLINT
+- allmsg - documentation of MLINT codes
+- amb    - explains things that are ambiguous
+	  : provides locations
+	  : .editc() says function calls are ambiguous but does not provide
+		a line #
+- body - ???
++ callops - documents all function calls
++ calls   - same as callops
+- com - ???
+- cyc - Evaluates McCabe complexity for methods ...
+			- NOTE: this has a side effect of telling you where the methods are
+			
+- dty - Not sure what thsi is ...
+		% *** [1] linttype <0> CLASSDEF   CLASSDEF, ''
+		% *** [1] linttype <1> <CEXPR>   <CEXPR>, ''
+		% *** [1] linttype <2> '<'   '<', ''
+		% *** [1] linttype <3> extracellular_stim     ClassDef (1)   extracellular_stim, ''
+		% *** [1] linttype <4> NEURON.simulation     ClassRef (2)   NEURON.simulation, ''
++ edit - exposed as editc due to Matlab naming restrictions ... I'm not actually sure of
+		 what information this class provides.
+- id MLINT
+- ja NOT VALID
++ lex TODO: Add documentation
+- m0   : MLINT
+- m1   : MLINT
+- m2   : MLINT
+- m3   : MLINT
+- mess : "message" related to errors and warnings
+- pf   : parallel for loop
+- set  : Very confusing output
+- spmd : Parrallel Computing Toolbox's spmd
+- stmt : 
+- struct : MLINT
+- tab  : Confusing
+- tmtree : invalid
+- tmw : invalid
+- toks : ?????
+- tree :

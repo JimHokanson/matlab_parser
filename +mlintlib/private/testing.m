@@ -136,7 +136,7 @@ are returned with the request
 %E0 - end of function
 %U1 - 
 %
-%-calls
+%DONE    -calls
 %==========================================================================
 %   Seems to be the same as callops
 %
@@ -229,6 +229,47 @@ are returned with the request
 %   Very verbose dumping of mlint information. Seems to include all mlints
 %   including those that have been ignored ...
 %   
+%	3 sections:
+%
+%	1) 
+%new message NASGU, position 11324, sz -1
+    beginmess=  <VOID>, endmess=  <VOID>, prevmess=  <VOID>
+    first message
+    new message between   <VOID> and   <VOID>
+    getting a new slot
+    message (11324) **: next=  <VOID>, prev=  <VOID>
+    beginmess= (11324) **, endmess= (11324) **, prevmess= (11324) **
+new message NASGU, position 11488, sz -1
+    beginmess= NASGU (11324) **, endmess= NASGU (11324) **, prevmess= NASGU (11324) **
+    start up from previous
+    new message between  NASGU (11324) ** and   <VOID>
+    getting a new slot
+    message (11488) **: next=  <VOID>, prev= NASGU (11324) **
+    beginmess= NASGU (11324) **, endmess= (11488) **, prevmess= (11488) **
+new message AGROW, position 20758, sz -1
+    beginmess= NASGU (11324) **, endmess= NASGU (11488) **, prevmess= NASGU (11488) **
+    start up from previous
+    new message between  NASGU (11488) ** and   <VOID>
+%
+%	2) DUMPING MESSAGES
+% NASGU (11324) **:  next= NASGU (11344) 3,  prev=  <VOID> (198/1)
+%
+% NASGU (11344) 3:  next= NASGU (11488) **,  prev= NASGU (11324) ** (198/21)
+%
+% NASGU (11488) **:  next= ISMAT (17984) 5,  prev= NASGU (11344) 3 (202/1)
+%
+% ISMAT (17984) 5:  next= AGROW (20758) **,  prev= NASGU (11488) ** (329/62)
+%
+% AGROW (20758) **:  next= AGROW (20802) 6,  prev= ISMAT (17984) 5 (373/1)
+%
+%	3) The output from m0
+%L 202 (C 72-82): MSNU: A Code Analyzer message was once suppressed here, but the message is no longer generated.
+%L 329 (C 62-66): When checking if a variable is a matrix consider using ISMATRIX.
+%L 1309 (C 27-28): The value assigned to variable 'ME' might be unused.
+%L 1336 (C 27-28): The value assigned to variable 'ME' might be unused.
+%L 1357 (C 27-28): The value assigned to variable 'ME' might be unused.
+%L 1875 (C 53-63): MSNU: A Code Analyzer message was once suppressed here, but the message is no longer generated.
+%
 %
 %
 %
@@ -297,14 +338,7 @@ are returned with the request
 %
 %-toks
 %==========================================================================
-% L 202 (C 72-82): MSNU: A Code Analyzer message was once suppressed here, but the message is no longer generated.
-% L 329 (C 62-66): When checking if a variable is a matrix consider using ISMATRIX.
-% L 1307 (C 27-28): The value assigned to variable 'ME' might be unused.
-% L 1334 (C 27-28): The value assigned to variable 'ME' might be unused.
-% L 1355 (C 27-28): The value assigned to variable 'ME' might be unused.
-% L 1873 (C 53-63): MSNU: A Code Analyzer message was once suppressed here, but the message is no longer generated.
-%
-%
+%??????
 %
 %-tree
 %==========================================================================

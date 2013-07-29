@@ -10,9 +10,5 @@ classdef strings < handle
     properties
     end
     
-    methods (Static)
-       [str_starts,str_ends] = getPossibleStrings(file_string)
-    end
-    
 end
 
